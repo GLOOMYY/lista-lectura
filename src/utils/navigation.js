@@ -3,43 +3,37 @@ const checkIsNavigationSupported = () => {
 }
 
 const fetchPage = async (url) => {
-  // Cargamos la pagina de destino mediante un fetch para traer el HTML
-
-  const response = await fetch(url) // Pagina destino
-  const json = await response.text()
-  
-  // Nos quedamos unicamente con el contenido dentro del HTML
-  // Utilizamos una Regex para extraer
-  const [, data] = text.match(/<body[^>]*>([\s\S]*)<\/body>/i)
-  
+  // vamos a cargar la página de destino
+  // utilizando un fetch para obtener el HTML
+  const response = await fetch(url) // /clean-code
+  const text = await response.text()
+  // quedarnos sólo con el contenido del html dentro de la etiqueta body
+  // usamos un regex para extraerlo
+  const [, data] = text.match(/<body>([\s\S]*)<\/body>/i)
   return data
 }
 
-
-export const startViewTransition = (event) => { 
+export const startViewTransition = () => {
   if (!checkIsNavigationSupported()) return
 
-  window.navigation.addEventListener('navigate', () => {
-      const toUrl = new URL(event.destination.url)
+  window.navigation.addEventListener('navigate', (event) => {
+    const toUrl = new URL(event.destination.url)
 
-      // Si es una pagina externa no hacemos nada
-      if (location.origin != toUrl.origin ) return 
+    // es una página externa? si es así, lo ignoramos
+    if (location.origin !== toUrl.origin) return
 
-      event.intercept({
-        async handler () {
-          const data = await fetchPage(toUrl.pathname)
+    // si es una navegación en el mismo dominio (origen)
+    event.intercept({
+      async handler () {
+        const data = await fetchPage(toUrl.pathname)
 
-          document.startViewTransition(() => {
-            document.body.innerHTML = data
-            console.log('funciona')
-          
-            // Llevamos la nueva pagina al top
-            document.documentElement.scrollTop = 0 
-          
-          })
-        }
-      })
-
+        // utilizar la api de View Transition API
+        document.startViewTransition(() => {
+          // el scroll hacia arriba del todo
+          document.body.innerHTML = data
+          document.documentElement.scrollTop = 0
+        })
+      }
     })
-
+  })
 }
