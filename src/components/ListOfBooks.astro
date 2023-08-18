@@ -1,7 +1,10 @@
 ---
 import BookItem from './BookItem.astro'
-import { books } from '../data/books';
+// import { books } from '../data/books';
 
+import { getBooks } from '../data/notion';
+
+const books = await getBooks()
 
 --- 
 
